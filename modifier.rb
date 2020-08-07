@@ -9,8 +9,7 @@ def latest(name)
     last_date = /\d+-\d+-\d+_[[:alpha:]]+\.txt$/.match file
     last_date = last_date.to_s.match /\d+-\d+-\d+/
 
-    date = DateTime.parse(last_date.to_s)
-    date
+    DateTime.parse(last_date.to_s)
   end
 
   throw RuntimeError if files.empty?
@@ -56,14 +55,9 @@ class Modifier
     end.combine(input_enumerator)
 
     merger = Enumerator.new do |yielder|
-      while true
-        begin
-          list_of_rows = combiner.next
-          merged = combine_hashes(list_of_rows)
-          yielder.yield(combine_values(merged))
-        rescue StopIteration
-          break
-        end
+      combiner.each do |comb|
+        merged = combine_hashes(comb)
+        yielder.yield(combine_values(merged))
       end
     end
 
@@ -167,7 +161,7 @@ class Modifier
     index_of_key = headers.index('Clicks')
     content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
     write(content, headers, output)
-    return output
+    output
   end
 end
 
